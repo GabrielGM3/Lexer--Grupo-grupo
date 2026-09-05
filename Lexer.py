@@ -80,12 +80,44 @@ class Lexer:
 
     def __init__(self, source: str):
         self.source = source
-        # TODO: inicialize aqui o estado exigido por sua estratégia.
+        self.pos = 0
+        self.linha = 1
+        self.coluna = 1
+
+        self.keywords = {
+            "int": TokenKind.KW_INT, "bool": TokenKind.KW_BOOL,
+            "void": TokenKind.KW_VOID, "true": TokenKind.KW_TRUE,
+            "false": TokenKind.KW_FALSE, "if": TokenKind.KW_IF,
+            "else": TokenKind.KW_ELSE, "while": TokenKind.KW_WHILE,
+            "return": TokenKind.KW_RETURN, "print": TokenKind.KW_PRINT
+        }
+
+    def acabou_string(self):
+        return self.pos >= len(self.source)
+
+    def verificar_caractere(self) -> str:
+        if self.acabou_string():
+            return ""
+        return self.source[self.pos]
+
+    def avançar(self) -> str:
+        if self.acabou_string():
+            return ""
+
+        char = self.source[self.pos]
+        self.pos += 1
+
+        if char == '\n':
+            self.linha += 1
+            self.coluna = 1
+        else:
+            self.coluna += 1
+
+        return char
 
     def tokens(self) -> Iterator[Token]:
         """Produza todos os tokens significativos e um único EOF ao final."""
-        raise NotImplementedError("implemente o analisador léxico")
-        yield  # mantém este método como gerador durante o desenvolvimento
+        yield Token(TokenKind.EOF,"", None, self.linha, self.coluna)
 
     def scan(self) -> list[Token]:
         return list(self.tokens())
