@@ -150,6 +150,26 @@ class Lexer:
                 yield self.identificador_ou_keyword(c,linha_começo,coluna_começo)
             elif c.isdigit():
                 yield self.numero(c, linha_começo,coluna_começo)
+            elif c == ';':
+                yield Token(TokenKind.SEMICOLON, ";", None, linha_começo, coluna_começo)
+            elif c == '(':
+                yield Token(TokenKind.LEFT_PAREN, "(", None, linha_começo, coluna_começo)
+            elif c == ')':
+                yield Token(TokenKind.RIGHT_PAREN, ")", None, linha_começo, coluna_começo)
+            elif c == '{':
+                yield Token(TokenKind.LEFT_BRACE, "{", None, linha_começo, coluna_começo)
+            elif c == '}':
+                yield Token(TokenKind.RIGHT_BRACE, "}", None, linha_começo, coluna_começo)
+            elif c == ',':
+                yield Token(TokenKind.COMMA, ",", None, linha_começo, coluna_começo)
+            elif c == '-':
+                yield Token(TokenKind.MINUS, "-", None, linha_começo,coluna_começo)
+            elif c == '+':
+                yield Token(TokenKind.PLUS, "+", None, linha_começo,coluna_começo)
+            elif c == '*':
+                yield Token(TokenKind.STAR, "*", None, linha_começo,coluna_começo)
+            elif c == '%':
+                yield Token(TokenKind.PERCENT, "%", None, linha_começo,coluna_começo)
             else:
                 raise  LexerError(f"Caractere invalido: {c}", linha_começo, coluna_começo)
 
