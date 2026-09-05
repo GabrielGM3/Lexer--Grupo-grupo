@@ -150,6 +150,12 @@ class Lexer:
                 yield self.identificador_ou_keyword(c,linha_começo,coluna_começo)
             elif c.isdigit():
                 yield self.numero(c, linha_começo,coluna_começo)
+            elif c== '=':
+                if not self.acabou_string() and self.verificar_caractere()== '=':
+                    self.avançar()
+                    yield Token(TokenKind.EQUAL_EQUAL, "==",None, linha_começo, coluna_começo)
+                else:
+                    yield Token(TokenKind.ASSIGN , "=", None, linha_começo, coluna_começo)
             elif c == ';':
                 yield Token(TokenKind.SEMICOLON, ";", None, linha_começo, coluna_começo)
             elif c == '(':
@@ -170,6 +176,36 @@ class Lexer:
                 yield Token(TokenKind.STAR, "*", None, linha_começo,coluna_começo)
             elif c == '%':
                 yield Token(TokenKind.PERCENT, "%", None, linha_começo,coluna_começo)
+            elif c== '<':
+                if not self.acabou_string() and self.verificar_caractere()== '=':
+                    self.avançar()
+                    yield Token(TokenKind.LESS_EQUAL,"<=", None, linha_começo,coluna_começo)
+                else:
+                    yield Token(TokenKind.LESS, "<", None, linha_começo, coluna_começo)
+            elif c == '>':
+                if not self.acabou_string() and self.verificar_caractere() == '=':
+                    self.avançar()
+                    yield Token(TokenKind.GREATER_EQUAL, ">=", None, linha_começo, coluna_começo)
+                else:
+                    yield Token(TokenKind.GREATER , ">", None, linha_começo, coluna_começo)
+            elif c == '!':
+                if not self.acabou_string() and self.verificar_caractere() == '=':
+                    self.avançar()
+                    yield Token(TokenKind.NOT_EQUAL, "!=", None, linha_começo, coluna_começo)
+                else:
+                    yield Token(TokenKind.LOGICAL_NOT , "!", None, linha_começo, coluna_começo)
+            elif c == '&':
+                if not self.acabou_string() and self.verificar_caractere() == '&':
+                    self.avançar()
+                    yield Token(TokenKind.LOGICAL_AND, "&&", None, linha_começo, coluna_começo)
+                else:
+                    raise LexerError(f"Caractere invalido: {c}", linha_começo, coluna_começo)
+            elif c == '|':
+                if not self.acabou_string() and self.verificar_caractere() == '|':
+                    self.avançar()
+                    yield Token(TokenKind.LOGICAL_OR, "||", None, linha_começo, coluna_começo)
+                else:
+                    raise LexerError(f"Caractere invalido: {c}", linha_começo, coluna_começo)
             else:
                 raise  LexerError(f"Caractere invalido: {c}", linha_começo, coluna_começo)
 
