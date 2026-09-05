@@ -115,10 +115,45 @@ class Lexer:
 
         return char
 
+    def identificador_ou_keyword(self, primeiro_caractere:str,linha: int, coluna:int) -> Token:
+        lexema=primeiro_caractere
+        while not self.acabou_string() and((self.verificar_caractere().isascii() and self.verificar_caractere().isalnum()) or self.verificar_caractere() == '_'):
+            lexema += self.avançar()
+
+        tipo= self.keywords.get(lexema, TokenKind.IDENTIFIER)
+
+        valor= lexema if tipo==TokenKind.IDENTIFIER else (True if tipo == TokenKind.KW_TRUE else(False if tipo == TokenKind.KW_FALSE else None))
+
+        return Token(tipo, lexema, valor, linha, coluna)
+
+    def numero(self, primeiro_caractere:str,linha: int, coluna:int) -> Token:
+        lexema=primeiro_caractere
+        while not self.acabou_string() and self.verificar_caractere().isdigit():
+            lexema += self.avançar()
+
+        return Token(TokenKind.INT_LITERAL, lexema, int(lexema), linha, coluna)
+
     def tokens(self) -> Iterator[Token]:
         """Produza todos os tokens significativos e um único EOF ao final."""
+        while not self.acabou_string():
+            char = self.verificar_caractere()
+
+            if char.isspace():
+                self.avançar()
+                continue
+
+            linha_começo= self.linha
+            coluna_começo= self.coluna
+            c= self.avançar()
+
+            if (c.isascii() and c.isalpha()) or c== '_':
+                yield self.identificador_ou_keyword(c,linha_começo,coluna_começo)
+            elif c.isdigit():
+                yield self.numero(c, linha_começo,coluna_começo)
+            else:
+                raise  LexerError(f"Caractere invalido: {c}", linha_começo, coluna_começo)
+
         yield Token(TokenKind.EOF,"", None, self.linha, self.coluna)
 
     def scan(self) -> list[Token]:
         return list(self.tokens())
-
