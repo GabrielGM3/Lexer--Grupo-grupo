@@ -133,6 +133,50 @@ class Lexer:
 
         return Token(TokenKind.INT_LITERAL, lexema, int(lexema), linha, coluna)
 
+    def _string(self,linha: int, coluna: int) -> Token:
+        lexema= '"'
+        caracteres_valor=[]
+
+        while not self.acabou_string() and self.verificar_caractere() != '"':
+
+            coluna_char= self.coluna
+            char=self.avançar()
+            lexema +=char
+
+            if char == '\\':
+                if not self.acabou_string():
+                    proximo_caractere= self.avançar()
+                    lexema += proximo_caractere
+
+                    if proximo_caractere == 'n':
+                        caracteres_valor.append('\n')
+                    elif proximo_caractere  == 't':
+                        caracteres_valor.append('\t')
+                    elif proximo_caractere  == '"':
+                        caracteres_valor.append('"')
+                    elif proximo_caractere  == '"':
+                        caracteres_valor.append('"')
+                    elif proximo_caractere  == '\\':
+                        caracteres_valor.append('\\')
+                    else:
+                        raise LexerError(
+                            f"Sequência de escape inválida: \\{proximo_caractere}",
+                            self.linha,
+                            coluna_char
+                        )
+
+                else:
+                    raise LexerError("String não finalizada após barra invertida", linha, coluna)
+            else:
+                if char == '\n':
+                    raise LexerError("Quebra de linha literal não permitida em strings", self.linha - 1, coluna_char)
+                caracteres_valor.append(char)
+        if self.acabou_string():
+            raise LexerError("String não fechada", linha, coluna)
+        lexema += self.avançar()
+        valor= "".join(caracteres_valor)
+        return Token(TokenKind.STRING_LITERAL,lexema,valor,linha,coluna)
+
     def tokens(self) -> Iterator[Token]:
         """Produza todos os tokens significativos e um único EOF ao final."""
         while not self.acabou_string():
@@ -168,6 +212,8 @@ class Lexer:
                 yield Token(TokenKind.RIGHT_BRACE, "}", None, linha_começo, coluna_começo)
             elif c == ',':
                 yield Token(TokenKind.COMMA, ",", None, linha_começo, coluna_começo)
+            elif c == '"':
+                yield self._string(linha_começo,coluna_começo)
             elif c == '-':
                 yield Token(TokenKind.MINUS, "-", None, linha_começo,coluna_começo)
             elif c == '+':
